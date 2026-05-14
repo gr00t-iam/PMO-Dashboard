@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>R&R Command Center - V30</title>
+    <title>R&R Command Center - V32</title>
     <meta http-equiv="refresh" content="300">
     <style>
         :root {
@@ -88,22 +88,6 @@
                 <h2><span>Live AZNS/AZSP Schedule</span> <span id="sync-status" style="font-size: 0.7rem; color: var(--accent-green);">Syncing...</span></h2>
                 <div id="schedule-container" class="scrollable-widget">
                     <div class="tech-info" style="padding: 10px; text-align: center;">Waiting for API connection...</div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2>Active Chat Triage (Fires)</h2>
-                <div class="status-item border-red" id="fire-row-1">
-                    <div class="item-details"><div class="highlight">Store 6714 (David)</div><div class="tech-info">Unable to print labels.</div></div>
-                    <label class="checkbox-wrapper"><input type="checkbox" id="chk-6714" class="triage-check"> DONE</label>
-                </div>
-                <div class="status-item border-red" id="fire-row-2">
-                    <div class="item-details"><div class="highlight">Store 8672 (Stephanie)</div><div class="tech-info">Printer not found on network.</div></div>
-                    <label class="checkbox-wrapper"><input type="checkbox" id="chk-8672" class="triage-check"> DONE</label>
-                </div>
-                 <div class="status-item border-orange" id="fire-row-3">
-                    <div class="item-details"><div class="highlight">Store 5526 (Selena)</div><div class="tech-info">Uncompleted setup task.</div></div>
-                    <label class="checkbox-wrapper"><input type="checkbox" id="chk-5526" class="triage-check"> DONE</label>
                 </div>
             </div>
         </div>
@@ -200,9 +184,9 @@
         setInterval(updateClock, 1000); updateClock();
 
         // ==========================================
-        // 2. THE DUAL API ENDPOINTS (UPDATE THIS SECTION)
+        // 2. THE DUAL API ENDPOINTS
         // ==========================================
-        const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbym4x8P-b72WA369RN-YyItz6g-uVA8bad6bfnX5ARfsMZDamkTIi1Zh36-uBmLbtheIQ/exec'; 
+        const APP_SCRIPT_URL = 'PASTE_YOUR_MAIN_SCHEDULE_URL_HERE'; 
         const XPM_RADAR_URL = 'https://script.google.com/macros/s/AKfycbxhxIQhoJSwKInqvB_gc46qjGtQr5nBAJLhl0szUmlv4KUb-GpNGS-OjvaUIVBcgHuv7Q/exec';
 
         // ==========================================
@@ -236,7 +220,6 @@
             cb.addEventListener('change', () => {
                 instantCloudSave(cb.id, cb.checked.toString());
                 if (cb.classList.contains('pci-check')) managePCIAudit();
-                if (cb.classList.contains('triage-check')) manageChatTriage();
             });
         });
         
@@ -287,13 +270,6 @@
                     instantCloudSave(cb.id, 'false');
                 });
                 managePCIAudit();
-            });
-        }
-
-        function manageChatTriage() {
-            document.querySelectorAll('.triage-check').forEach(cb => {
-                const row = cb.closest('.status-item');
-                row.style.display = cb.checked ? 'none' : 'flex';
             });
         }
 
@@ -381,7 +357,6 @@
 
                     checkFleetMaintenance();
                     managePCIAudit();
-                    manageChatTriage();
                 }
                 
                 if (currentData.schedule && currentData.inventory) {
