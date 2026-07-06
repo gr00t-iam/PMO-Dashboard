@@ -202,7 +202,7 @@
         // ==========================================
         // 2. THE DUAL API ENDPOINTS
         // ==========================================
-        const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxNdjmsWaWrWstLQPlpuJTF-wOGbcXK2aA0a0rOb3ZjIZUrWpHe1jc1PgksluyNgrSkdg/exec'; 
+        const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw9VFA1_7UKgeZIfqlIO6WHsSadESLC2jLf5QlctMR-gG6Ed1-u9I8_Izk0xAn9Uhq-_Q/exec'; 
         const XPM_RADAR_URL = 'https://script.google.com/macros/s/AKfycbxhxIQhoJSwKInqvB_gc46qjGtQr5nBAJLhl0szUmlv4KUb-GpNGS-OjvaUIVBcgHuv7Q/exec';
 
         // ==========================================
@@ -537,7 +537,7 @@
                 const isRef = row.tech.includes('Desired Amounts') || row.tech.includes('Current On-hand Inventory');
                 if (cable === 0 && rj45 === 0 && jacks === 0 && jHooks === 0 && patchPanels === 0 && labelTape === 0 && !isRef) return ''; 
 
-                let dateDisplay = "N/A";
+                let dateDisplay = row.lastUpdated || "N/A";
 if (row.lastUpdated && row.lastUpdated !== "N/A") {
     let parsedDate = new Date(row.lastUpdated);
     // Only format if it's a valid date and NOT the 1969/1970 computer baseline glitch
