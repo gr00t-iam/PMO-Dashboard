@@ -537,8 +537,14 @@
                 const isRef = row.tech.includes('Desired Amounts') || row.tech.includes('Current On-hand Inventory');
                 if (cable === 0 && rj45 === 0 && jacks === 0 && jHooks === 0 && patchPanels === 0 && labelTape === 0 && !isRef) return ''; 
 
-                let dateDisplay = "N/A"; let parsedDate = new Date(row.lastUpdated);
-                if (!isNaN(parsedDate)) dateDisplay = parsedDate.toLocaleDateString('en-US');
+                let dateDisplay = "N/A";
+if (row.lastUpdated && row.lastUpdated !== "N/A") {
+    let parsedDate = new Date(row.lastUpdated);
+    // Only format if it's a valid date and NOT the 1969/1970 computer baseline glitch
+    if (!isNaN(parsedDate) && parsedDate.getFullYear() > 1970) {
+        dateDisplay = parsedDate.toLocaleDateString('en-US');
+    }
+}
 
                 const cStyle = (cable < t_cable && !isRef) ? 'color: var(--accent-red);' : '';
                 const rStyle = (rj45 < t_rj45 && !isRef) ? 'color: var(--accent-red);' : '';
