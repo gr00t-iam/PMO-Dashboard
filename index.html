@@ -320,7 +320,7 @@
             }
         };
 
-        // ==========================================
+       // ==========================================
         // 5. API 1: MAIN SCHEDULE & INVENTORY ENGINE
         // ==========================================
         async function fetchCommandData() {
@@ -525,26 +525,44 @@
             let t_jHooks = desiredRow ? (parseInt(desiredRow.jHooks) || 0) * 0.5 : 0;
             let t_patchPanels = desiredRow ? (parseInt(desiredRow.patchPanels) || 0) * 0.5 : 0;
             let t_labelTape = desiredRow ? (parseInt(desiredRow.labelTape) || 0) * 0.5 : 0;
+            
+            // Added thresholds for new items
+            let t_racks3u = desiredRow ? (parseInt(desiredRow.racks3u) || 0) * 0.5 : 0;
+            let t_zipTies = desiredRow ? (parseInt(desiredRow.zipTies) || 0) * 0.5 : 0;
+            let t_velcro = desiredRow ? (parseInt(desiredRow.velcro) || 0) * 0.5 : 0;
+            let t_electricalTape = desiredRow ? (parseInt(desiredRow.electricalTape) || 0) * 0.5 : 0;
 
             let onHandRow = data.find(r => r.tech && r.tech.includes('Current On-hand Inventory'));
             let techRows = data.filter(r => r.tech && !r.tech.includes('Current On-hand Inventory') && !r.tech.includes('Desired Amounts'));
 
             function buildRowHTML(row) {
-                const cable = parseInt(row.cableBoxes, 10) || 0; const rj45 = parseInt(row.rj45, 10) || 0;
-                const jacks = parseInt(row.jacks, 10) || 0; const jHooks = parseInt(row.jHooks, 10) || 0;
-                const patchPanels = parseInt(row.patchPanels, 10) || 0; const labelTape = parseInt(row.labelTape, 10) || 0;
+                const cable = parseInt(row.cableBoxes, 10) || 0; 
+                const rj45 = parseInt(row.rj45, 10) || 0;
+                const jacks = parseInt(row.jacks, 10) || 0; 
+                const jHooks = parseInt(row.jHooks, 10) || 0;
+                const patchPanels = parseInt(row.patchPanels, 10) || 0; 
+                const labelTape = parseInt(row.labelTape, 10) || 0;
+                
+                // Added parsing for new items
+                const racks3u = parseInt(row.racks3u, 10) || 0;
+                const zipTies = parseInt(row.zipTies, 10) || 0;
+                const velcro = parseInt(row.velcro, 10) || 0;
+                const electricalTape = parseInt(row.electricalTape, 10) || 0;
+                const labelMaker = row.labelMaker || "N/A";
 
                 const isRef = row.tech.includes('Desired Amounts') || row.tech.includes('Current On-hand Inventory');
-                if (cable === 0 && rj45 === 0 && jacks === 0 && jHooks === 0 && patchPanels === 0 && labelTape === 0 && !isRef) return ''; 
+                
+                // Updated empty check to include new items
+                if (cable === 0 && rj45 === 0 && jacks === 0 && jHooks === 0 && patchPanels === 0 && labelTape === 0 && racks3u === 0 && zipTies === 0 && velcro === 0 && electricalTape === 0 && !isRef) return ''; 
 
                 let dateDisplay = row.lastUpdated || "N/A";
-if (row.lastUpdated && row.lastUpdated !== "N/A") {
-    let parsedDate = new Date(row.lastUpdated);
-    // Only format if it's a valid date and NOT the 1969/1970 computer baseline glitch
-    if (!isNaN(parsedDate) && parsedDate.getFullYear() > 1970) {
-        dateDisplay = parsedDate.toLocaleDateString('en-US');
-    }
-}
+                if (row.lastUpdated && row.lastUpdated !== "N/A") {
+                    let parsedDate = new Date(row.lastUpdated);
+                    // Only format if it's a valid date and NOT the 1969/1970 computer baseline glitch
+                    if (!isNaN(parsedDate) && parsedDate.getFullYear() > 1970) {
+                        dateDisplay = parsedDate.toLocaleDateString('en-US');
+                    }
+                }
 
                 const cStyle = (cable < t_cable && !isRef) ? 'color: var(--accent-red);' : '';
                 const rStyle = (rj45 < t_rj45 && !isRef) ? 'color: var(--accent-red);' : '';
@@ -552,6 +570,12 @@ if (row.lastUpdated && row.lastUpdated !== "N/A") {
                 const jhStyle = (jHooks < t_jHooks && !isRef) ? 'color: var(--accent-red);' : '';
                 const pStyle = (patchPanels < t_patchPanels && !isRef) ? 'color: var(--accent-red);' : '';
                 const tStyle = (labelTape < t_labelTape && !isRef) ? 'color: var(--accent-red);' : '';
+                
+                // Added styles for new items
+                const r3Style = (racks3u < t_racks3u && !isRef) ? 'color: var(--accent-red);' : '';
+                const zipStyle = (zipTies < t_zipTies && !isRef) ? 'color: var(--accent-red);' : '';
+                const vStyle = (velcro < t_velcro && !isRef) ? 'color: var(--accent-red);' : '';
+                const eStyle = (electricalTape < t_electricalTape && !isRef) ? 'color: var(--accent-red);' : '';
 
                 let laptopStr = row.azLaptop ? `<span>AZ Laptop:</span> <b>${row.azLaptop}</b>` : '';
                 if (isRef && !row.azLaptop) laptopStr = '';
@@ -563,12 +587,19 @@ if (row.lastUpdated && row.lastUpdated !== "N/A") {
                         <div class="tech-info" style="font-size: 0.65rem; color: var(--accent-orange);">Updated: ${dateDisplay}</div>
                     </div>
                     <div class="inv-grid">
-                        <div><span>Cable Box:</span> <b style="${cStyle}">${row.cableBoxes}</b></div>
-                        <div><span>RJ45 Tips:</span> <b style="${rStyle}">${row.rj45}</b></div>
-                        <div><span>Jacks:</span> <b style="${jStyle}">${row.jacks}</b></div>
-                        <div><span>J-Hooks:</span> <b style="${jhStyle}">${row.jHooks}</b></div>
-                        <div><span>Patch Panels:</span> <b style="${pStyle}">${row.patchPanels}</b></div>
-                        <div><span>Label Tape:</span> <b style="${tStyle}">${row.labelTape}</b></div>
+                        <div><span>Cable Box:</span> <b style="${cStyle}">${row.cableBoxes || 0}</b></div>
+                        <div><span>RJ45 Tips:</span> <b style="${rStyle}">${row.rj45 || 0}</b></div>
+                        <div><span>Jacks:</span> <b style="${jStyle}">${row.jacks || 0}</b></div>
+                        <div><span>J-Hooks:</span> <b style="${jhStyle}">${row.jHooks || 0}</b></div>
+                        <div><span>Patch Panels:</span> <b style="${pStyle}">${row.patchPanels || 0}</b></div>
+                        <div><span>Label Tape:</span> <b style="${tStyle}">${row.labelTape || 0}</b></div>
+                        
+                        <div><span>3U Racks:</span> <b style="${r3Style}">${row.racks3u || 0}</b></div>
+                        <div><span>Zip Ties:</span> <b style="${zipStyle}">${row.zipTies || 0}</b></div>
+                        <div><span>Velcro:</span> <b style="${vStyle}">${row.velcro || 0}</b></div>
+                        <div><span>Elec. Tape:</span> <b style="${eStyle}">${row.electricalTape || 0}</b></div>
+                        <div><span>Label Maker:</span> <b>${labelMaker}</b></div>
+                        
                         <div style="grid-column: 1 / -1; margin-top: 4px; color: var(--accent-green);">${laptopStr}</div>
                     </div>
                 </div>`;
@@ -581,7 +612,6 @@ if (row.lastUpdated && row.lastUpdated !== "N/A") {
 
             container.innerHTML = finalHTML;
         }
-
         // ==========================================
         // 6. API 2: XPM RADAR SCANNER ENGINE
         // ==========================================
