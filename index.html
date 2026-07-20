@@ -154,8 +154,8 @@
                         <div class="item-details">
                             <div class="highlight">Josh Carsten (Van 1)</div>
                             <div class="tech-info">
-                                Miles: <span id="mi-curr-josh" class="editable-num" contenteditable="true">0</span> | 
-                                Next: <span id="mi-next-josh" class="editable-num" contenteditable="true">0</span>
+                                Miles: <span id="mi-curr-josh" style="font-weight: bold; color: #fff;">0</span> | 
+                                Next: <span id="mi-next-josh" style="font-weight: bold; color: #fff;">0</span>
                             </div>
                         </div>
                         <span class="badge active" id="badge-josh">OK</span>
@@ -165,8 +165,8 @@
                         <div class="item-details">
                             <div class="highlight">Christian Chambers (Van 2)</div>
                             <div class="tech-info">
-                                Miles: <span id="mi-curr-christian" class="editable-num" contenteditable="true">0</span> | 
-                                Next: <span id="mi-next-christian" class="editable-num" contenteditable="true">0</span>
+                                Miles: <span id="mi-curr-christian" style="font-weight: bold; color: #fff;">0</span> | 
+                                Next: <span id="mi-next-christian" style="font-weight: bold; color: #fff;">0</span>
                             </div>
                         </div>
                         <span class="badge active" id="badge-christian">OK</span>
@@ -176,8 +176,8 @@
                         <div class="item-details">
                             <div class="highlight">Derrick Dowden (Van 3)</div>
                             <div class="tech-info">
-                                Miles: <span id="mi-curr-derrick" class="editable-num" contenteditable="true">0</span> | 
-                                Next: <span id="mi-next-derrick" class="editable-num" contenteditable="true">0</span>
+                                Miles: <span id="mi-curr-derrick" style="font-weight: bold; color: #fff;">0</span> | 
+                                Next: <span id="mi-next-derrick" style="font-weight: bold; color: #fff;">0</span>
                             </div>
                         </div>
                         <span class="badge active" id="badge-derrick">OK</span>
@@ -187,8 +187,8 @@
                         <div class="item-details">
                             <div class="highlight">Nasir Yusuf (Van 4)</div>
                             <div class="tech-info">
-                                Miles: <span id="mi-curr-nasir" class="editable-num" contenteditable="true">0</span> | 
-                                Next: <span id="mi-next-nasir" class="editable-num" contenteditable="true">0</span>
+                                Miles: <span id="mi-curr-nasir" style="font-weight: bold; color: #fff;">0</span> | 
+                                Next: <span id="mi-next-nasir" style="font-weight: bold; color: #fff;">0</span>
                             </div>
                         </div>
                         <span class="badge active" id="badge-nasir">OK</span>
@@ -198,8 +198,8 @@
                         <div class="item-details">
                             <div class="highlight">Worren Scott (Van 5)</div>
                             <div class="tech-info">
-                                Miles: <span id="mi-curr-worren" class="editable-num" contenteditable="true">0</span> | 
-                                Next: <span id="mi-next-worren" class="editable-num" contenteditable="true">0</span>
+                                Miles: <span id="mi-curr-worren" style="font-weight: bold; color: #fff;">0</span> | 
+                                Next: <span id="mi-next-worren" style="font-weight: bold; color: #fff;">0</span>
                             </div>
                         </div>
                         <span class="badge active" id="badge-worren">OK</span>
@@ -209,8 +209,8 @@
                         <div class="item-details">
                             <div class="highlight">Ayo David (Van 6)</div>
                             <div class="tech-info">
-                                Miles: <span id="mi-curr-ayo" class="editable-num" contenteditable="true">0</span> | 
-                                Next: <span id="mi-next-ayo" class="editable-num" contenteditable="true">0</span>
+                                Miles: <span id="mi-curr-ayo" style="font-weight: bold; color: #fff;">0</span> | 
+                                Next: <span id="mi-next-ayo" style="font-weight: bold; color: #fff;">0</span>
                             </div>
                         </div>
                         <span class="badge active" id="badge-ayo">OK</span>
@@ -265,7 +265,6 @@
 
         function handleEditableInput(e) {
             scheduleCloudSave(e.target.id, e.target.innerHTML);
-            checkFleetMaintenance();
         }
         
         const checks = document.querySelectorAll('input[type="checkbox"]');
@@ -335,6 +334,12 @@
             fleetData.forEach((item, index) => {
                 if (!item.tech && !item.van) return;
                 
+                // Exclude Aaron Gonzales and any Inventory headers automatically
+                const lowerTech = (item.tech || "").toLowerCase();
+                if (lowerTech.includes('inventory') || lowerTech.includes('desired') || lowerTech.includes('aaron')) {
+                    return; 
+                }
+                
                 const rawTech = item.tech || `Van ${index + 1}`;
                 const firstName = rawTech.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
                 const vanLabel = item.van ? ` (${item.van})` : '';
@@ -344,8 +349,8 @@
                     <div class="item-details">
                         <div class="highlight">${rawTech}${vanLabel}</div>
                         <div class="tech-info">
-                            Miles: <span id="mi-curr-${firstName}" class="editable-num" contenteditable="true">${item.currentMiles || 0}</span> | 
-                            Next: <span id="mi-next-${firstName}" class="editable-num" contenteditable="true">${item.nextOil || 0}</span>
+                            Miles: <span id="mi-curr-${firstName}" style="font-weight: bold; color: #fff;">${item.currentMiles || 0}</span> | 
+                            Next: <span id="mi-next-${firstName}" style="font-weight: bold; color: #fff;">${item.nextOil || 0}</span>
                         </div>
                     </div>
                     <span class="badge active" id="badge-${firstName}">OK</span>
@@ -355,7 +360,8 @@
             if (html.trim() !== '') {
                 container.innerHTML = html;
             }
-            bindEditableEvents();
+            
+            // Check badges based on newly rendered API data
             checkFleetMaintenance();
         }
 
@@ -446,7 +452,6 @@
                         callNotes.value = currentData.state['call-notes'];
                     }
 
-                    checkFleetMaintenance();
                     managePCIAudit();
                 }
                 
