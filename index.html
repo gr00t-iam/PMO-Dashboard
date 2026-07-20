@@ -39,7 +39,8 @@
         .badge.update { background: rgba(241, 196, 15, 0.1); color: var(--accent-yellow); border: 1px solid var(--accent-yellow); animation: pulse 2s infinite; }
         .badge.warning { background: rgba(255, 138, 118, 0.1); color: var(--accent-orange); border: 1px solid var(--accent-orange); }
         .badge.critical { background: rgba(253, 93, 147, 0.1); color: var(--accent-red); border: 1px solid var(--accent-red); animation: pulse 2s infinite; }
-        
+        .badge.active { background: rgba(0, 214, 180, 0.1); color: var(--accent-green); border: 1px solid var(--accent-green); }
+
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         
         [contenteditable="true"]:hover { background: rgba(255,255,255,0.05); cursor: text; border-radius: 3px; }
@@ -75,8 +76,8 @@
 
     <div class="dashboard-grid">
         
+        <!-- COLUMN 1 -->
         <div class="column">
-            
             <div class="card">
                 <h2>This Week's Sites</h2>
                 <div id="active-sites-container" style="padding-right: 5px;">
@@ -92,8 +93,8 @@
             </div>
         </div>
 
+        <!-- COLUMN 2 -->
         <div class="column">
-            
             <div class="card">
                 <h2>Tech Van Inventory & Laptops</h2>
                 <div id="inventory-container" class="inventory-scroll" style="max-height: 380px;">
@@ -141,15 +142,79 @@
                     <div class="tech-info" style="padding: 10px; text-align: center;">Waiting for Radar data...</div>
                 </div>
             </div>
-
         </div>
 
+        <!-- COLUMN 3 -->
         <div class="column">
-
             <div class="card">
                 <h2>Fleet Maintenance</h2>
                 <div id="fleet-container">
-                    <div class="tech-info" style="padding: 10px; text-align: center;">Loading Fleet Data...</div>
+                    <!-- Default Static Layout for immediate display & fallback -->
+                    <div class="status-item border-green" id="fleet-card-josh">
+                        <div class="item-details">
+                            <div class="highlight">Josh Carsten (Van 1)</div>
+                            <div class="tech-info">
+                                Miles: <span id="mi-curr-josh" class="editable-num" contenteditable="true">0</span> | 
+                                Next: <span id="mi-next-josh" class="editable-num" contenteditable="true">0</span>
+                            </div>
+                        </div>
+                        <span class="badge active" id="badge-josh">OK</span>
+                    </div>
+
+                    <div class="status-item border-green" id="fleet-card-christian">
+                        <div class="item-details">
+                            <div class="highlight">Christian Chambers (Van 2)</div>
+                            <div class="tech-info">
+                                Miles: <span id="mi-curr-christian" class="editable-num" contenteditable="true">0</span> | 
+                                Next: <span id="mi-next-christian" class="editable-num" contenteditable="true">0</span>
+                            </div>
+                        </div>
+                        <span class="badge active" id="badge-christian">OK</span>
+                    </div>
+
+                    <div class="status-item border-green" id="fleet-card-derrick">
+                        <div class="item-details">
+                            <div class="highlight">Derrick Dowden (Van 3)</div>
+                            <div class="tech-info">
+                                Miles: <span id="mi-curr-derrick" class="editable-num" contenteditable="true">0</span> | 
+                                Next: <span id="mi-next-derrick" class="editable-num" contenteditable="true">0</span>
+                            </div>
+                        </div>
+                        <span class="badge active" id="badge-derrick">OK</span>
+                    </div>
+
+                    <div class="status-item border-green" id="fleet-card-nasir">
+                        <div class="item-details">
+                            <div class="highlight">Nasir Yusuf (Van 4)</div>
+                            <div class="tech-info">
+                                Miles: <span id="mi-curr-nasir" class="editable-num" contenteditable="true">0</span> | 
+                                Next: <span id="mi-next-nasir" class="editable-num" contenteditable="true">0</span>
+                            </div>
+                        </div>
+                        <span class="badge active" id="badge-nasir">OK</span>
+                    </div>
+
+                    <div class="status-item border-green" id="fleet-card-worren">
+                        <div class="item-details">
+                            <div class="highlight">Worren Scott (Van 5)</div>
+                            <div class="tech-info">
+                                Miles: <span id="mi-curr-worren" class="editable-num" contenteditable="true">0</span> | 
+                                Next: <span id="mi-next-worren" class="editable-num" contenteditable="true">0</span>
+                            </div>
+                        </div>
+                        <span class="badge active" id="badge-worren">OK</span>
+                    </div>
+
+                    <div class="status-item border-green" id="fleet-card-ayo">
+                        <div class="item-details">
+                            <div class="highlight">Ayo David (Van 6)</div>
+                            <div class="tech-info">
+                                Miles: <span id="mi-curr-ayo" class="editable-num" contenteditable="true">0</span> | 
+                                Next: <span id="mi-next-ayo" class="editable-num" contenteditable="true">0</span>
+                            </div>
+                        </div>
+                        <span class="badge active" id="badge-ayo">OK</span>
+                    </div>
                 </div>
             </div>
 
@@ -193,11 +258,14 @@
         function bindEditableEvents() {
             const editables = document.querySelectorAll('[contenteditable="true"]');
             editables.forEach(el => {
-                el.addEventListener('input', () => {
-                    scheduleCloudSave(el.id, el.innerHTML);
-                    checkFleetMaintenance();
-                });
+                el.removeEventListener('input', handleEditableInput);
+                el.addEventListener('input', handleEditableInput);
             });
+        }
+
+        function handleEditableInput(e) {
+            scheduleCloudSave(e.target.id, e.target.innerHTML);
+            checkFleetMaintenance();
         }
         
         const checks = document.querySelectorAll('input[type="checkbox"]');
@@ -259,31 +327,34 @@
         }
 
         function renderFleetMaintenance(fleetData) {
-            const container = document.getElementById('fleet-container');
-            if (!fleetData || fleetData.length === 0) {
-                container.innerHTML = '<div class="tech-info" style="padding: 10px; text-align: center;">No fleet data available.</div>';
-                return;
-            }
+            if (!fleetData || fleetData.length === 0) return;
 
+            const container = document.getElementById('fleet-container');
             let html = '';
+            
             fleetData.forEach((item, index) => {
-                const idKey = item.tech ? item.tech.toLowerCase().replace(/\s+/g, '') : `tech-${index}`;
+                if (!item.tech && !item.van) return;
+                
+                const rawTech = item.tech || `Van ${index + 1}`;
+                const firstName = rawTech.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
                 const vanLabel = item.van ? ` (${item.van})` : '';
                 
                 html += `
-                <div class="status-item border-green" id="fleet-card-${idKey}">
+                <div class="status-item border-green" id="fleet-card-${firstName}">
                     <div class="item-details">
-                        <div class="highlight">${item.tech}${vanLabel}</div>
+                        <div class="highlight">${rawTech}${vanLabel}</div>
                         <div class="tech-info">
-                            Miles: <span id="mi-curr-${idKey}" class="editable-num" contenteditable="true">${item.currentMiles || 0}</span> | 
-                            Next: <span id="mi-next-${idKey}" class="editable-num" contenteditable="true">${item.nextOil || 0}</span>
+                            Miles: <span id="mi-curr-${firstName}" class="editable-num" contenteditable="true">${item.currentMiles || 0}</span> | 
+                            Next: <span id="mi-next-${firstName}" class="editable-num" contenteditable="true">${item.nextOil || 0}</span>
                         </div>
                     </div>
-                    <span class="badge active" id="badge-${idKey}">OK</span>
+                    <span class="badge active" id="badge-${firstName}">OK</span>
                 </div>`;
             });
 
-            container.innerHTML = html;
+            if (html.trim() !== '') {
+                container.innerHTML = html;
+            }
             bindEditableEvents();
             checkFleetMaintenance();
         }
@@ -353,7 +424,7 @@
                 
                 localStorage.setItem('aznsDataCacheV7', JSON.stringify(currentData));
 
-                if (currentData.fleet) {
+                if (currentData.fleet && currentData.fleet.length > 0) {
                     renderFleetMaintenance(currentData.fleet);
                 }
 
@@ -666,7 +737,8 @@
             });
         }
 
-        // Start App
+        // Init setup & execution
+        bindEditableEvents();
         fetchCommandData();
         fetchXpmRadarData();
         
