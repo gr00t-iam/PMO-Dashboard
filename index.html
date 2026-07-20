@@ -7,33 +7,58 @@
     <meta http-equiv="refresh" content="300">
     <style>
         :root {
-            --bg-dark: #1e1e2f; --card-bg: #27293d; --text-main: #e1e1ea; --text-muted: #9a9a9a;
+            /* Default Dark Theme */
+            --bg-color: #1e1e2f; 
+            --card-bg: #27293d; 
+            --text-main: #e1e1ea; 
+            --text-muted: #9a9a9a;
+            --highlight-text: #ffffff;
+            --border-color: #3b3b54;
+            --item-bg: rgba(255,255,255,0.02);
+            --item-hover: rgba(255,255,255,0.05);
+            /* Accents */
             --accent-blue: #1d8cf8; --accent-red: #fd5d93; --accent-green: #00d6b4;
             --accent-orange: #ff8a76; --accent-purple: #ba54f5; --accent-yellow: #f1c40f;
         }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 10px 15px; font-size: 0.9rem; }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #3b3b54; padding-bottom: 8px; }
-        h1 { margin: 0; font-size: 1.3rem; font-weight: 400; color: #fff; }
+
+        [data-theme="light"] {
+            /* Light Theme Overrides */
+            --bg-color: #f4f5f7; 
+            --card-bg: #ffffff; 
+            --text-main: #2b2b2b; 
+            --text-muted: #6c757d;
+            --highlight-text: #1a1a1a;
+            --border-color: #e3e3e3;
+            --item-bg: rgba(0,0,0,0.03);
+            --item-hover: rgba(0,0,0,0.06);
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 10px 15px; font-size: 0.9rem; transition: background-color 0.3s, color 0.3s; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
+        h1 { margin: 0; font-size: 1.3rem; font-weight: 400; color: var(--highlight-text); }
         .time-display { font-size: 1.1rem; color: var(--accent-blue); font-weight: bold; }
         
+        .theme-toggle { cursor: pointer; font-size: 1.2rem; user-select: none; transition: transform 0.2s; }
+        .theme-toggle:hover { transform: scale(1.1); }
+
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; align-items: start; }
         .column { display: flex; flex-direction: column; gap: 12px; }
-        .card { background-color: var(--card-bg); border-radius: 6px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 6px; transition: all 0.3s ease; }
-        .card h2 { margin: 0 0 4px 0; font-size: 0.9rem; color: var(--accent-blue); border-bottom: 1px solid #3b3b54; padding-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between;}
+        .card { background-color: var(--card-bg); border-radius: 6px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 6px; transition: all 0.3s ease; }
+        .card h2 { margin: 0 0 4px 0; font-size: 0.9rem; color: var(--accent-blue); border-bottom: 1px solid var(--border-color); padding-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between;}
         
         .scrollable-widget { max-height: 400px; overflow-y: auto; padding-right: 5px; } 
         .inventory-scroll { max-height: 550px; overflow-y: auto; padding-right: 5px; }
         .scrollable-widget::-webkit-scrollbar, .inventory-scroll::-webkit-scrollbar { width: 6px; }
-        .scrollable-widget::-webkit-scrollbar-thumb, .inventory-scroll::-webkit-scrollbar-thumb { background: #3b3b54; border-radius: 3px; }
+        .scrollable-widget::-webkit-scrollbar-thumb, .inventory-scroll::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
 
-        .status-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: rgba(255,255,255,0.02); border-radius: 4px; border-left: 3px solid transparent; margin-bottom: 6px; transition: all 0.3s ease; }
+        .status-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: var(--item-bg); border-radius: 4px; border-left: 3px solid transparent; margin-bottom: 6px; transition: all 0.3s ease; }
         .status-item:last-child { margin-bottom: 0; }
         
         .border-red { border-left-color: var(--accent-red); } .border-orange { border-left-color: var(--accent-orange); }
         .border-green { border-left-color: var(--accent-green); } .border-purple { border-left-color: var(--accent-purple); } .border-blue { border-left-color: var(--accent-blue); }
         
         .item-details { flex-grow: 1; }
-        .highlight { color: #fff; font-weight: bold; font-size: 0.8rem; margin-bottom: 2px; }
+        .highlight { color: var(--highlight-text); font-weight: bold; font-size: 0.8rem; margin-bottom: 2px; }
         .tech-info { font-size: 0.75rem; color: var(--text-muted); line-height: 1.3; }
         .badge { padding: 2px 6px; border-radius: 3px; font-size: 0.65rem; font-weight: bold; margin-left: 8px; text-align: center; min-width: 50px; transition: all 0.3s ease; }
         .badge.update { background: rgba(241, 196, 15, 0.1); color: var(--accent-yellow); border: 1px solid var(--accent-yellow); animation: pulse 2s infinite; }
@@ -43,25 +68,25 @@
 
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         
-        [contenteditable="true"]:hover { background: rgba(255,255,255,0.05); cursor: text; border-radius: 3px; }
+        [contenteditable="true"]:hover { background: var(--item-hover); cursor: text; border-radius: 3px; }
         .editable-num { border-bottom: 1px dashed var(--text-muted); padding: 0 2px; color: var(--text-main); font-weight: bold; }
         
         .checkbox-wrapper { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--accent-orange); font-weight: bold; }
         input[type="checkbox"] { cursor: pointer; }
         a { color: var(--accent-blue); text-decoration: none; } a:hover { text-decoration: underline; }
-        textarea { width: 100%; height: 120px; background: rgba(255,255,255,0.02); border: 1px solid #3b3b54; color: var(--text-main); border-radius: 4px; padding: 10px; font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 0.85rem; resize: vertical; box-sizing: border-box; }
-        textarea:focus { outline: none; border-color: var(--accent-blue); background: rgba(255,255,255,0.05); }
+        textarea { width: 100%; height: 120px; background: var(--item-bg); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 4px; padding: 10px; font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 0.85rem; resize: vertical; box-sizing: border-box; }
+        textarea:focus { outline: none; border-color: var(--accent-blue); background: var(--item-hover); }
 
         .inv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; width: 100%; margin-top: 6px; font-size: 0.7rem; color: var(--text-main); }
         .inv-grid span { color: var(--text-muted); font-weight: normal; }
 
-        details { background: rgba(255,255,255,0.02); border-radius: 4px; padding: 6px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.05); }
+        details { background: var(--item-bg); border-radius: 4px; padding: 6px; margin-bottom: 6px; border: 1px solid var(--item-hover); }
         summary { cursor: pointer; color: var(--accent-blue); font-weight: bold; font-size: 0.75rem; outline: none; list-style: none; text-transform: uppercase; letter-spacing: 0.5px; }
         summary::-webkit-details-marker { display: none; }
         summary::before { content: '▶ '; font-size: 0.65rem; color: var(--text-muted); display: inline-block; margin-right: 4px; transition: transform 0.2s; }
         details[open] summary::before { transform: rotate(90deg); }
         #pci-reset-btn:hover { color: var(--accent-blue) !important; }
-        .dismiss-btn:hover { color: #fff !important; }
+        .dismiss-btn:hover { color: var(--highlight-text) !important; }
     </style>
 </head>
 <body>
@@ -71,7 +96,10 @@
             <h1>R&R Command Center - PMO Ultimate</h1>
             <span style="color: var(--text-muted); font-size: 0.8rem;">Jeremiah Miller | Gravette HQ</span>
         </div>
-        <div class="time-display" id="clock">00:00:00</div>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div id="theme-toggle" class="theme-toggle" title="Toggle Light/Dark Mode">☀️</div>
+            <div class="time-display" id="clock">00:00:00</div>
+        </div>
     </header>
 
     <div class="dashboard-grid">
@@ -154,8 +182,8 @@
                         <div class="item-details">
                             <div class="highlight">Josh Carsten (Van 1)</div>
                             <div class="tech-info">
-                                Miles: <span id="mi-curr-josh" style="font-weight: bold; color: #fff;">0</span> | 
-                                Next: <span id="mi-next-josh" style="font-weight: bold; color: #fff;">0</span>
+                                Miles: <span id="mi-curr-josh" style="font-weight: bold; color: var(--highlight-text);">0</span> | 
+                                Next: <span id="mi-next-josh" style="font-weight: bold; color: var(--highlight-text);">0</span>
                             </div>
                         </div>
                         <span class="badge active" id="badge-josh">OK</span>
@@ -165,8 +193,8 @@
                         <div class="item-details">
                             <div class="highlight">Christian Chambers (Van 2)</div>
                             <div class="tech-info">
-                                Miles: <span id="mi-curr-christian" style="font-weight: bold; color: #fff;">0</span> | 
-                                Next: <span id="mi-next-christian" style="font-weight: bold; color: #fff;">0</span>
+                                Miles: <span id="mi-curr-christian" style="font-weight: bold; color: var(--highlight-text);">0</span> | 
+                                Next: <span id="mi-next-christian" style="font-weight: bold; color: var(--highlight-text);">0</span>
                             </div>
                         </div>
                         <span class="badge active" id="badge-christian">OK</span>
@@ -176,8 +204,8 @@
                         <div class="item-details">
                             <div class="highlight">Derrick Dowden (Van 3)</div>
                             <div class="tech-info">
-                                Miles: <span id="mi-curr-derrick" style="font-weight: bold; color: #fff;">0</span> | 
-                                Next: <span id="mi-next-derrick" style="font-weight: bold; color: #fff;">0</span>
+                                Miles: <span id="mi-curr-derrick" style="font-weight: bold; color: var(--highlight-text);">0</span> | 
+                                Next: <span id="mi-next-derrick" style="font-weight: bold; color: var(--highlight-text);">0</span>
                             </div>
                         </div>
                         <span class="badge active" id="badge-derrick">OK</span>
@@ -187,8 +215,8 @@
                         <div class="item-details">
                             <div class="highlight">Nasir Yusuf (Van 4)</div>
                             <div class="tech-info">
-                                Miles: <span id="mi-curr-nasir" style="font-weight: bold; color: #fff;">0</span> | 
-                                Next: <span id="mi-next-nasir" style="font-weight: bold; color: #fff;">0</span>
+                                Miles: <span id="mi-curr-nasir" style="font-weight: bold; color: var(--highlight-text);">0</span> | 
+                                Next: <span id="mi-next-nasir" style="font-weight: bold; color: var(--highlight-text);">0</span>
                             </div>
                         </div>
                         <span class="badge active" id="badge-nasir">OK</span>
@@ -198,8 +226,8 @@
                         <div class="item-details">
                             <div class="highlight">Worren Scott (Van 5)</div>
                             <div class="tech-info">
-                                Miles: <span id="mi-curr-worren" style="font-weight: bold; color: #fff;">0</span> | 
-                                Next: <span id="mi-next-worren" style="font-weight: bold; color: #fff;">0</span>
+                                Miles: <span id="mi-curr-worren" style="font-weight: bold; color: var(--highlight-text);">0</span> | 
+                                Next: <span id="mi-next-worren" style="font-weight: bold; color: var(--highlight-text);">0</span>
                             </div>
                         </div>
                         <span class="badge active" id="badge-worren">OK</span>
@@ -209,8 +237,8 @@
                         <div class="item-details">
                             <div class="highlight">Ayo David (Van 6)</div>
                             <div class="tech-info">
-                                Miles: <span id="mi-curr-ayo" style="font-weight: bold; color: #fff;">0</span> | 
-                                Next: <span id="mi-next-ayo" style="font-weight: bold; color: #fff;">0</span>
+                                Miles: <span id="mi-curr-ayo" style="font-weight: bold; color: var(--highlight-text);">0</span> | 
+                                Next: <span id="mi-next-ayo" style="font-weight: bold; color: var(--highlight-text);">0</span>
                             </div>
                         </div>
                         <span class="badge active" id="badge-ayo">OK</span>
@@ -227,6 +255,31 @@
     </div>
 
     <script>
+        // ==========================================
+        // 0. THEME TOGGLE ENGINE
+        // ==========================================
+        const themeToggle = document.getElementById('theme-toggle');
+        
+        if (localStorage.getItem('pmo-theme') === 'light') {
+            document.body.setAttribute('data-theme', 'light');
+            if (themeToggle) themeToggle.textContent = '🌙';
+        }
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const isLight = document.body.getAttribute('data-theme') === 'light';
+                if (isLight) {
+                    document.body.removeAttribute('data-theme');
+                    themeToggle.textContent = '☀️';
+                    localStorage.setItem('pmo-theme', 'dark');
+                } else {
+                    document.body.setAttribute('data-theme', 'light');
+                    themeToggle.textContent = '🌙';
+                    localStorage.setItem('pmo-theme', 'light');
+                }
+            });
+        }
+
         // 1. Live Clock
         function updateClock() { document.getElementById('clock').textContent = new Date().toLocaleTimeString(); }
         setInterval(updateClock, 1000); updateClock();
@@ -349,8 +402,8 @@
                     <div class="item-details">
                         <div class="highlight">${rawTech}${vanLabel}</div>
                         <div class="tech-info">
-                            Miles: <span id="mi-curr-${firstName}" style="font-weight: bold; color: #fff;">${item.currentMiles || 0}</span> | 
-                            Next: <span id="mi-next-${firstName}" style="font-weight: bold; color: #fff;">${item.nextOil || 0}</span>
+                            Miles: <span id="mi-curr-${firstName}" style="font-weight: bold; color: var(--highlight-text);">${item.currentMiles || 0}</span> | 
+                            Next: <span id="mi-next-${firstName}" style="font-weight: bold; color: var(--highlight-text);">${item.nextOil || 0}</span>
                         </div>
                     </div>
                     <span class="badge active" id="badge-${firstName}">OK</span>
@@ -581,7 +634,7 @@
                     let tech = row.technician || 'Pending'; let ams = row.amsPallet || 'N/A'; let status = row.status || 'Active';
 
                     groupHTML += `
-                    <div class="status-item border-blue" style="background: rgba(0,0,0,0.1); border-left-color: #3b3b54;">
+                    <div class="status-item border-blue" style="background: rgba(0,0,0,0.1); border-left-color: var(--border-color);">
                         <div class="item-details">
                             <div class="highlight">${site} | Date: ${dDisplay}</div>
                             <div class="tech-info"><b>Tech:</b> ${tech} | <b>AMS:</b> ${ams} | <b>Status:</b> ${status}</div>
