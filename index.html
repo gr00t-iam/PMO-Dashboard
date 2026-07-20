@@ -93,8 +93,8 @@
 
     <header>
         <div>
-            <h1>R&R Command Center</h1>
-            <span style="color: var(--text-muted); font-size: 0.8rem;">Gravette HQ</span>
+            <h1>R&R Command Center - PMO Ultimate</h1>
+            <span style="color: var(--text-muted); font-size: 0.8rem;">Jeremiah Miller | Gravette HQ</span>
         </div>
         <div style="display: flex; align-items: center; gap: 15px;">
             <div id="theme-toggle" class="theme-toggle" title="Toggle Light/Dark Mode">☀️</div>
@@ -177,16 +177,17 @@
             <div class="card">
                 <h2>Fleet Maintenance</h2>
                 <div id="fleet-container">
-                    <!-- Default Static Layout for immediate display & fallback -->
-                    <div class="status-item border-green" id="fleet-card-josh">
+                    <!-- Default Static Layout for immediate display & fallback (Alphabetical) -->
+                    
+                    <div class="status-item border-green" id="fleet-card-ayo">
                         <div class="item-details">
-                            <div class="highlight">Josh Carsten (Van 1)</div>
+                            <div class="highlight">Ayo David (Van 6)</div>
                             <div class="tech-info">
-                                Miles: <span id="mi-curr-josh" style="font-weight: bold; color: var(--highlight-text);">0</span> | 
-                                Next: <span id="mi-next-josh" style="font-weight: bold; color: var(--highlight-text);">0</span>
+                                Miles: <span id="mi-curr-ayo" style="font-weight: bold; color: var(--highlight-text);">0</span> | 
+                                Next: <span id="mi-next-ayo" style="font-weight: bold; color: var(--highlight-text);">0</span>
                             </div>
                         </div>
-                        <span class="badge active" id="badge-josh">OK</span>
+                        <span class="badge active" id="badge-ayo">OK</span>
                     </div>
 
                     <div class="status-item border-green" id="fleet-card-christian">
@@ -211,6 +212,17 @@
                         <span class="badge active" id="badge-derrick">OK</span>
                     </div>
 
+                    <div class="status-item border-green" id="fleet-card-josh">
+                        <div class="item-details">
+                            <div class="highlight">Josh Carsten (Van 1)</div>
+                            <div class="tech-info">
+                                Miles: <span id="mi-curr-josh" style="font-weight: bold; color: var(--highlight-text);">0</span> | 
+                                Next: <span id="mi-next-josh" style="font-weight: bold; color: var(--highlight-text);">0</span>
+                            </div>
+                        </div>
+                        <span class="badge active" id="badge-josh">OK</span>
+                    </div>
+
                     <div class="status-item border-green" id="fleet-card-nasir">
                         <div class="item-details">
                             <div class="highlight">Nasir Yusuf (Van 4)</div>
@@ -231,17 +243,6 @@
                             </div>
                         </div>
                         <span class="badge active" id="badge-worren">OK</span>
-                    </div>
-
-                    <div class="status-item border-green" id="fleet-card-ayo">
-                        <div class="item-details">
-                            <div class="highlight">Ayo David (Van 6)</div>
-                            <div class="tech-info">
-                                Miles: <span id="mi-curr-ayo" style="font-weight: bold; color: var(--highlight-text);">0</span> | 
-                                Next: <span id="mi-next-ayo" style="font-weight: bold; color: var(--highlight-text);">0</span>
-                            </div>
-                        </div>
-                        <span class="badge active" id="badge-ayo">OK</span>
                     </div>
                 </div>
             </div>
@@ -380,6 +381,13 @@
 
         function renderFleetMaintenance(fleetData) {
             if (!fleetData || fleetData.length === 0) return;
+
+            // Sort fleetData alphabetically by tech name
+            fleetData.sort((a, b) => {
+                const nameA = (a.tech || '').toLowerCase();
+                const nameB = (b.tech || '').toLowerCase();
+                return nameA.localeCompare(nameB);
+            });
 
             const container = document.getElementById('fleet-container');
             let html = '';
