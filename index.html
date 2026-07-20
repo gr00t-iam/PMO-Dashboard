@@ -148,43 +148,8 @@
 
             <div class="card">
                 <h2>Fleet Maintenance</h2>
-
-                <div class="status-item border-green" id="fleet-card-ayo">
-                    <div class="item-details"><div class="highlight">Ayo David (Van HS419)</div><div class="tech-info">Miles: <span id="mi-curr-ayo" class="editable-num" contenteditable="true">7799</span> | Next: <span id="mi-next-ayo" class="editable-num" contenteditable="true">15000</span></div></div>
-                    <span class="badge active" id="badge-ayo">OK</span>
-                </div>
-                
-                <div class="status-item border-green" id="fleet-card-bradleigh">
-                    <div class="item-details"><div class="highlight">Bradleigh Rice (Van HS400)</div><div class="tech-info">Miles: <span id="mi-curr-bradleigh" class="editable-num" contenteditable="true">11989</span> | Next: <span id="mi-next-bradleigh" class="editable-num" contenteditable="true">24000</span></div></div>
-                    <span class="badge active" id="badge-bradleigh">OK</span>
-                </div>
-
-                <div class="status-item border-green" id="fleet-card-christian">
-                    <div class="item-details">
-                        <div class="highlight">Christian Chambers (Van HS410)</div>
-                        <div class="tech-info">Miles: <span id="mi-curr-christian" class="editable-num" contenteditable="true">0</span> | Next: <span id="mi-next-christian" class="editable-num" contenteditable="true">5000</span></div>
-                    </div>
-                    <span class="badge active" id="badge-christian">OK</span>
-                </div>
-              
-                <div class="status-item border-green" id="fleet-card-derrick">
-                    <div class="item-details"><div class="highlight">Derrick Dowden (Van HS405)</div><div class="tech-info">Miles: <span id="mi-curr-derrick" class="editable-num" contenteditable="true">19606</span> | Next: <span id="mi-next-derrick" class="editable-num" contenteditable="true">24000</span></div></div>
-                    <span class="badge active" id="badge-derrick">OK</span>
-                </div>
-                
-                <div class="status-item border-green" id="fleet-card-josh">
-                    <div class="item-details"><div class="highlight">Josh Carsten (Van HS417)</div><div class="tech-info">Miles: <span id="mi-curr-josh" class="editable-num" contenteditable="true">16733</span> | Next: <span id="mi-next-josh" class="editable-num" contenteditable="true">24000</span></div></div>
-                    <span class="badge active" id="badge-josh">OK</span>
-                </div>
-                
-                <div class="status-item border-green" id="fleet-card-nasir">
-                    <div class="item-details"><div class="highlight">Nasir Yusuf (Van HS416)</div><div class="tech-info">Miles: <span id="mi-curr-nasir" class="editable-num" contenteditable="true">13227</span> | Next: <span id="mi-next-nasir" class="editable-num" contenteditable="true">18000</span></div></div>
-                    <span class="badge active" id="badge-nasir">OK</span>
-                </div>
-                
-                <div class="status-item border-green" id="fleet-card-worren">
-                    <div class="item-details"><div class="highlight">Worren Scott (Van HS415)</div><div class="tech-info">Miles: <span id="mi-curr-worren" class="editable-num" contenteditable="true">9000</span> | Next: <span id="mi-next-worren" class="editable-num" contenteditable="true">15000</span></div></div>
-                    <span class="badge active" id="badge-worren">OK</span>
+                <div id="fleet-container">
+                    <div class="tech-info" style="padding: 10px; text-align: center;">Loading Fleet Data...</div>
                 </div>
             </div>
 
@@ -225,13 +190,15 @@
             fetch(url).catch(e => console.error("Cloud Save Error:", e));
         }
 
-        const editables = document.querySelectorAll('[contenteditable="true"]');
-        editables.forEach(el => {
-            el.addEventListener('input', () => {
-                scheduleCloudSave(el.id, el.innerHTML);
-                checkFleetMaintenance();
+        function bindEditableEvents() {
+            const editables = document.querySelectorAll('[contenteditable="true"]');
+            editables.forEach(el => {
+                el.addEventListener('input', () => {
+                    scheduleCloudSave(el.id, el.innerHTML);
+                    checkFleetMaintenance();
+                });
             });
-        });
+        }
         
         const checks = document.querySelectorAll('input[type="checkbox"]');
         checks.forEach(cb => {
@@ -291,15 +258,45 @@
             });
         }
 
-        function checkFleetMaintenance() {
-            const vans = ['josh', 'derrick', 'nasir', 'worren', 'ayo', 'christian', 'bradleigh'];
-            vans.forEach(van => {
-                const currentEl = document.getElementById(`mi-curr-${van}`);
-                const nextEl = document.getElementById(`mi-next-${van}`);
-                const badgeEl = document.getElementById(`badge-${van}`);
-                const cardEl = document.getElementById(`fleet-card-${van}`);
+        function renderFleetMaintenance(fleetData) {
+            const container = document.getElementById('fleet-container');
+            if (!fleetData || fleetData.length === 0) {
+                container.innerHTML = '<div class="tech-info" style="padding: 10px; text-align: center;">No fleet data available.</div>';
+                return;
+            }
+
+            let html = '';
+            fleetData.forEach((item, index) => {
+                const idKey = item.tech ? item.tech.toLowerCase().replace(/\s+/g, '') : `tech-${index}`;
+                const vanLabel = item.van ? ` (${item.van})` : '';
                 
-                if (currentEl && nextEl && badgeEl && cardEl) {
+                html += `
+                <div class="status-item border-green" id="fleet-card-${idKey}">
+                    <div class="item-details">
+                        <div class="highlight">${item.tech}${vanLabel}</div>
+                        <div class="tech-info">
+                            Miles: <span id="mi-curr-${idKey}" class="editable-num" contenteditable="true">${item.currentMiles || 0}</span> | 
+                            Next: <span id="mi-next-${idKey}" class="editable-num" contenteditable="true">${item.nextOil || 0}</span>
+                        </div>
+                    </div>
+                    <span class="badge active" id="badge-${idKey}">OK</span>
+                </div>`;
+            });
+
+            container.innerHTML = html;
+            bindEditableEvents();
+            checkFleetMaintenance();
+        }
+
+        function checkFleetMaintenance() {
+            const cards = document.querySelectorAll('#fleet-container .status-item');
+            cards.forEach(cardEl => {
+                const idKey = cardEl.id.replace('fleet-card-', '');
+                const currentEl = document.getElementById(`mi-curr-${idKey}`);
+                const nextEl = document.getElementById(`mi-next-${idKey}`);
+                const badgeEl = document.getElementById(`badge-${idKey}`);
+                
+                if (currentEl && nextEl && badgeEl) {
                     let currentMiles = parseInt(currentEl.innerText.replace(/,/g, '')) || 0;
                     let nextOil = parseInt(nextEl.innerText.replace(/,/g, '')) || 0;
                     
@@ -356,7 +353,12 @@
                 
                 localStorage.setItem('aznsDataCacheV7', JSON.stringify(currentData));
 
+                if (currentData.fleet) {
+                    renderFleetMaintenance(currentData.fleet);
+                }
+
                 if (currentData.state) {
+                    const editables = document.querySelectorAll('[contenteditable="true"]');
                     editables.forEach(el => {
                         if (document.activeElement !== el && currentData.state[el.id] !== undefined) {
                             el.innerHTML = currentData.state[el.id];
